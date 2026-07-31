@@ -27,6 +27,7 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
 // Register EF Core DbContext (from Infra)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -45,16 +46,14 @@ builder.Services.AddAuthentication("Bearer")
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
