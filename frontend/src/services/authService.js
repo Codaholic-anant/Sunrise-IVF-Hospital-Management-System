@@ -11,7 +11,7 @@ export const login = async (credentials) => {
 
     console.log("Success:", response.data);
 
-    if (response.data.token) {
+    if (response.data?.token) {
       sessionStorage.setItem("token", response.data.token);
 
       sessionStorage.setItem(
@@ -19,7 +19,7 @@ export const login = async (credentials) => {
         JSON.stringify({
           userId: response.data.userId,
           username: response.data.username,
-          role: "SuperAdmin",
+          role: response.data.role || "SuperAdmin",
         })
       );
     }

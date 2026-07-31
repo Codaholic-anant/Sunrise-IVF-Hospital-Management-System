@@ -28,6 +28,11 @@ import { DocMedicalHistory } from "./pages/doctors/DocMedicalHistory";
 import DocTestReports from "./pages/doctors/DocTestReports";
 import DoctorProfile from "./pages/doctors/DoctorProfile"
 
+// MasterImports
+
+import HospitalMaster from "../src/pages/masters/HospitalMaster";
+
+
 export default function App() {
   return (
     <HashRouter>
@@ -71,6 +76,12 @@ export default function App() {
           <Route path="/doctors/all-prescriptions" element={<DocGenPrescription />}/>
           <Route path="/doctor/profile" element={<DoctorProfile />} />
         </Route>
+
+        {/* MasterPages */}
+        {/* <Route element={<AdminLayout />}> */}
+        <Route path="/hospital-master" element={<HospitalMaster />} />
+       
+        {/* </Route> */}
       </Routes>
     </HashRouter>
   );

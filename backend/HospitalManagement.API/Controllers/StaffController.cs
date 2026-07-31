@@ -5,7 +5,8 @@ namespace HospitalManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : ControllerBase
+    public class StaffController : ControllerBase
     {
+       
     }
 }

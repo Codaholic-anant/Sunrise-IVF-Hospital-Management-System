@@ -1,8 +1,13 @@
 <Solution>
-  <Folder Name="/Core/" />
-  <Folder Name="/Infrastructure/" />
+  <Folder Name="/Core/">
+    <Project Path="HospitalManagement.Domain/HospitalManagement.Domain.csproj" Id="4f683497-252c-4cc8-a5d4-a2567778fa8b" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="HospitalManagement.Infra/HospitalManagement.Infra.csproj" Id="1130dc18-3f98-44e7-858d-2fb27f34cd1e" />
+  </Folder>
   <Folder Name="/Presentation/">
     <Project Path="HospitalManagement.API/HospitalManagement.API.csproj" />
   </Folder>
   <Folder Name="/Tests/" />
+  <Project Path="HospitalManagement.Core/HospitalManagement.Core.csproj" />
 </Solution>

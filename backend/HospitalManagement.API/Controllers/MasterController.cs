@@ -5,7 +5,12 @@ namespace HospitalManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : ControllerBase
+    public class MasterController : ControllerBase
     {
+        [HttpPost]
+        public IActionResult DoctorDetails()
+        {
+            return Ok();
+        }
     }
 }
