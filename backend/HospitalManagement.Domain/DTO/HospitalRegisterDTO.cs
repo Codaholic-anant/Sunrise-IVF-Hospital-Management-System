@@ -30,7 +30,29 @@ namespace HospitalManagement.Domain.DTO
 
         public string? Description { get; set; }
 
-        //public byte Status { get; set; }
+        public byte Status { get; set; }
+
+                // Contact Information
+        public string? Phone { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? Website { get; set; }
+
+    // Address Information
+        public string? Address { get; set; }
+
+        public string? City { get; set; }
+
+        public string? State { get; set; }
+
+        public string? Country { get; set; }
+
+        public string? Pincode { get; set; }
+
+    // public byte Status { get; set; }
+
+        
 
         //public bool IsActive { get; set; }
 
@@ -44,4 +66,5 @@ namespace HospitalManagement.Domain.DTO
 
         //public DateTime? UpdatedDate { get; set; }
     }
+
 }

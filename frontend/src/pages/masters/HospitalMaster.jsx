@@ -1,13 +1,10 @@
-import { useEffect,useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 
 import HospitalStats from "../../components/HospitalComponents/hospitalMaster/HospitalStats";
 import HospitalTable from "../../components/HospitalComponents/hospitalMaster/HospitalTable";
 import HospitalForm from "../../components/HospitalComponents/hospitalMaster/HospitalForm";
-import {
-  getHospitals,
-  deleteHospital,
-} from "../../services/hospitalService";
+import { getHospitals, deleteHospital } from "../../services/hospitalService";
 
 export default function HospitalMaster() {
   // Dummy Data (Later this will come from API)
@@ -29,13 +26,18 @@ export default function HospitalMaster() {
   const filteredHospitals = useMemo(() => {
     return hospitals.filter((hospital) => {
       const matchSearch =
-        hospital.name.toLowerCase().includes(search.toLowerCase()) ||
-        hospital.code.toLowerCase().includes(search.toLowerCase()) ||
-        hospital.phone.includes(search);
+        (hospital.HospitalName || "")
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        (hospital.HospitalCode || "")
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        (hospital.Phone || "").includes(search);
 
-      const matchType = !typeFilter || hospital.type === typeFilter;
-
-      const matchStatus = !statusFilter || hospital.status === statusFilter;
+      const matchType = !typeFilter || hospital.HospitalType === typeFilter;
+      const matchStatus =
+        !statusFilter ||
+        String(hospital.Status ?? "") === String(statusFilter);
 
       return matchSearch && matchType && matchStatus;
     });
@@ -44,6 +46,7 @@ export default function HospitalMaster() {
   const loadHospitals = async () => {
     try {
       const data = await getHospitals();
+      console.log(data);
       setHospitals(data);
     } catch (err) {
       console.log(err);
@@ -73,12 +76,9 @@ export default function HospitalMaster() {
     setShowForm(true);
   };
 
-
   const handleView = (hospital) => {
     console.log("View", hospital);
   };
-
-
 
   return (
     <div className="min-h-screen bg-slate-100 p-6">

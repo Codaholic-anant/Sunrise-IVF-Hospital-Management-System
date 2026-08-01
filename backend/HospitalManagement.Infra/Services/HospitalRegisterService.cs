@@ -2,7 +2,9 @@
 using HospitalManagement.Core.Interfaces;
 using HospitalManagement.Core.Models;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace HospitalManagement.Infra.Services
 {
@@ -39,8 +41,7 @@ namespace HospitalManagement.Infra.Services
                 BloodBankAvailable = model.BloodBankAvailable,
                 LogoUrl = model.LogoUrl,
                 Description = model.Description,
-                // Set a safe default status value that satisfies DB CHECK constraint
-                Status = 1,
+                Status = model.Status,
                 IsActive = true,
                 IsDeleted = false,
                 CreatedBy = 1,
@@ -59,5 +60,13 @@ namespace HospitalManagement.Infra.Services
         {
             return await _uow.Repository<Hospital>().GetByIdAsync(id);
         }
+
+        public async Task<List<Hospital>> GetAllAsync()
+        {
+            var items = await _uow.Repository<Hospital>().GetAllAsync();
+            return items.ToList();
+        }
+
+        
     }
 }

@@ -1,10 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using HospitalManagement.API.Models;
+using HospitalManagement.Core.Interfaces;
+using HospitalManagement.Core.Models;
+using LoginRequestModel = HospitalManagement.API.Models.LoginRequest;
+using AdminLoginEntity = HospitalManagement.Core.Models.AdminLogin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HospitalManagement.API.Controllers
@@ -14,54 +18,43 @@ namespace HospitalManagement.API.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
+        private readonly IUnitOfWork _uow;
 
-        public LoginController(IConfiguration configuration)
+        public LoginController(IConfiguration configuration, IUnitOfWork uow)
         {
             _configuration = configuration;
-            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+            _uow = uow;
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] LoginRequest request)
+        public async Task<IActionResult> Post([FromBody] LoginRequestModel request)
         {
             if (request is null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
             {
                 return BadRequest(new { success = false, message = "Username and password are required." });
             }
 
-            const string sql = @"
-                SELECT TOP(1) [id], [Username], [Pasword], [IsActive]
-                FROM dbo.tbl_AdminLogin
-                WHERE [Username] = @username AND [Pasword] = @password AND [IsActive] = 1;
-            ";
+            var user = (await _uow.Repository<AdminLoginEntity>().FindAsync(x =>
+                    x.Username == request.Username &&
+                    x.Pasword == request.Password &&
+                    x.IsActive))
+                .FirstOrDefault();
 
-            await using var conn = new SqlConnection(_connectionString);
-            await using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@username", request.Username);
-            cmd.Parameters.AddWithValue("@password", request.Password);
-
-            await conn.OpenAsync();
-
-            await using var reader = await cmd.ExecuteReaderAsync();
-            if (!reader.HasRows)
+            if (user == null)
             {
                 return Unauthorized(new { success = false, message = "Invalid credentials or inactive user." });
             }
 
-            await reader.ReadAsync();
-            var userId = reader.GetInt32(reader.GetOrdinal("id"));
-            var username = reader.GetString(reader.GetOrdinal("Username"));
             var expires = DateTime.UtcNow.AddMinutes(GetTokenExpiryMinutes());
-            var token = GenerateJwtToken(userId, username, expires);
+            var token = GenerateJwtToken(user.Id, user.Username, expires);
 
             return Ok(new
             {
                 success = true,
                 message = "Login successful.",
-                userId,
-                username,
+                userId = user.Id,
+                username = user.Username,
                 token,
                 expires
             });

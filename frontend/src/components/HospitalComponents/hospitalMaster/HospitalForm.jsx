@@ -7,27 +7,27 @@ import {
 } from "../../../services/hospitalService";
 
 const emptyHospital = {
-  hospitalCode: "",
-  hospitalName: "",
-  registrationNumber: "",
-  hospitalType: "",
-  establishedYear: "",
-  totalBeds: "",
-  emergencyAvailable: false,
-  icuAvailable: false,
-  ambulanceAvailable: false,
-  bloodBankAvailable: false,
-  logoUrl: "",
-  description: "",
-  phone: "",
-  email: "",
-  website: "",
-  address: "",
-  city: "",
-  state: "",
-  country: "",
-  pincode: "",
-  status: "Active",
+  HospitalCode: "",
+  HospitalName: "",
+  RegistrationNumber: "",
+  HospitalType: "",
+  EstablishedYear: "",
+  TotalBeds: "",
+  EmergencyAvailable: false,
+  ICUAvailable: false,
+  AmbulanceAvailable: false,
+  BloodBankAvailable: false,
+  LogoUrl: "",
+  Description: "",
+  Phone: "",
+  Email: "",
+  Website: "",
+  Address: "",
+  City: "",
+  State: "",
+  Country: "",
+  Pincode: "",
+  Status: 1,
 };
 
 export default function HospitalForm({ open, onClose, hospital, onSave }) {
@@ -43,23 +43,28 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
     }
   }, [hospital]);
 
+  if (!open) return null;
+
   const states = State.getStatesOfCountry("IN");
-  const cities = formData.state ? City.getCitiesOfState("IN", form.state) : [];
+  const cities = formData.State
+    ? City.getCitiesOfState("IN", formData.State)
+    : [];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "state") {
+    if (name === "State") {
       setFormData((prev) => ({
         ...prev,
-        state: value,
-        city: "", // Clear city when state changes
+        State: value,
+        City: "",
       }));
-    } else
+    } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -67,14 +72,14 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
     const validation = {};
 
-    if (!formData.hospitalCode)
-      validation.hospitalCode = "Hospital Code Required";
+    if (!formData.HospitalCode)
+      validation.HospitalCode = "Hospital Code Required";
 
-    if (!formData.hospitalName)
-      validation.hospitalName = "Hospital Name Required";
+    if (!formData.HospitalName)
+      validation.HospitalName = "Hospital Name Required";
 
-    if (!formData.registrationNumber)
-      validation.registrationNumber = "Registration Number Required";
+    if (!formData.RegistrationNumber)
+      validation.RegistrationNumber = "Registration Number Required";
 
     setErrors(validation);
 
@@ -82,17 +87,42 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
     if (Object.keys(validation).length > 0) return;
 
     try {
+      const payload = {
+        HospitalCode: formData.HospitalCode || "",
+        HospitalName: formData.HospitalName || "",
+        RegistrationNumber: formData.RegistrationNumber || "",
+        HospitalType: formData.HospitalType || "",
+        EstablishedYear: formData.EstablishedYear ? Number(formData.EstablishedYear) : null,
+        TotalBeds: formData.TotalBeds ? Number(formData.TotalBeds) : null,
+        EmergencyAvailable: Boolean(formData.EmergencyAvailable),
+        ICUAvailable: Boolean(formData.ICUAvailable),
+        AmbulanceAvailable: Boolean(formData.AmbulanceAvailable),
+        BloodBankAvailable: Boolean(formData.BloodBankAvailable),
+        LogoUrl: typeof formData.LogoUrl === "string" ? formData.LogoUrl : "",
+        Description: formData.Description || "",
+        Status: Number(formData.Status ?? 1),
+        Phone: formData.Phone || "",
+        Email: formData.Email || "",
+        Website: formData.Website || "",
+        Address: formData.Address || "",
+        City: formData.City || "",
+        State: formData.State || "",
+        Country: formData.Country || "",
+        Pincode: formData.Pincode || "",
+      };
+
       if (hospital) {
-        await updateHospital(hospital.id, formData);
+        await updateHospital(hospital.HospitalId, payload);
       } else {
-        await createHospital(formData);
+        await createHospital(payload);
       }
 
       onSave();
       onClose();
     } catch (err) {
-      console.error(err);
-    }
+    console.log(err.response);
+    console.log(err.response.data);
+}
   };
 
   const handleLogo = (e) => {
@@ -102,10 +132,17 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
     setFormData((prev) => ({
       ...prev,
-      logo: file,
+      LogoUrl: file,
     }));
 
     setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const toggleFacility = (field) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   };
 
   return (
@@ -146,15 +183,15 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                 </label>
 
                 <input
-                  name="hospitalCode"
-                  value={formData.hospitalCode}
+                  name="HospitalCode"
+                  value={formData.HospitalCode}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 outline-none"
                   placeholder="HSP001"
                 />
-                {errors.hospitalCode && (
+                {errors.HospitalCode && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.hospitalCode}
+                    {errors.HospitalCode}
                   </p>
                 )}
               </div>
@@ -165,15 +202,15 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                 </label>
 
                 <input
-                  name="hospitalName"
-                  value={formData.hospitalName}
+                  name="HospitalName"
+                  value={formData.HospitalName}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 outline-none"
                   placeholder="ABC Multispeciality Hospital"
                 />
-                {errors.hospitalName && (
+                {errors.HospitalName && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.hospitalName}
+                    {errors.HospitalName}
                   </p>
                 )}
               </div>
@@ -184,15 +221,15 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                 </label>
 
                 <input
-                  name="registrationNumber"
-                  value={formData.registrationNumber}
+                  name="RegistrationNumber"
+                  value={formData.RegistrationNumber}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 outline-none"
                   placeholder="REG12345"
                 />
-                {errors.registrationNumber && (
+                {errors.RegistrationNumber && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.registrationNumber}
+                    {errors.RegistrationNumber}
                   </p>
                 )}
               </div>
@@ -201,8 +238,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                 <label className="block mb-2 font-medium">Hospital Type</label>
 
                 <select
-                  name="hospitalType"
-                  value={formData.hospitalType}
+                  name="HospitalType"
+                  value={formData.HospitalType}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3"
                 >
@@ -222,8 +259,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
                 <input
                   type="number"
-                  name="establishedYear"
-                  value={formData.establishedYear}
+                  name="EstablishedYear"
+                  value={formData.EstablishedYear}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3"
                 />
@@ -234,8 +271,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
                 <input
                   type="number"
-                  name="totalBeds"
-                  value={formData.totalBeds}
+                  name="TotalBeds"
+                  value={formData.TotalBeds}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3"
                 />
@@ -256,8 +293,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
+                  name="Phone"
+                  value={formData.Phone}
                   onChange={handleChange}
                   placeholder="+91 9876543210"
                   className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 outline-none"
@@ -283,9 +320,9 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                 <label className="block mb-2 font-medium">Email</label>
 
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  type="Email"
+                  name="Email"
+                  value={formData.Email}
                   onChange={handleChange}
                   placeholder="hospital@gmail.com"
                   className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 outline-none"
@@ -297,8 +334,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
                 <input
                   type="url"
-                  name="website"
-                  value={formData.website}
+                  name="Website"
+                  value={formData.Website}
                   onChange={handleChange}
                   placeholder="https://hospital.com"
                   className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 outline-none"
@@ -317,8 +354,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
                   <textarea
                     rows="3"
-                    name="address"
-                    value={formData.address}
+                    name="Address"
+                    value={formData.Address}
                     onChange={handleChange}
                     className="w-full border rounded-xl px-4 py-3 resize-none focus:ring-2 focus:ring-teal-500"
                   />
@@ -332,8 +369,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                   </label>
 
                   <select
-                    name="state"
-                    value={formData.state}
+                    name="State"
+                    value={formData.State}
                     onChange={handleChange}
                     className="w-full border rounded-xl p-3"
                   >
@@ -354,16 +391,16 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                   </label>
 
                   <select
-                    name="city"
-                    value={formData.city}
+                    name="City"
+                    value={formData.City}
                     onChange={handleChange}
                     className="w-full border rounded-xl p-3"
                   >
                     <option value="">Select City</option>
 
-                    {cities.map((city) => (
-                      <option key={city.name} value={city.name}>
-                        {city.name}
+                    {cities.map((City) => (
+                      <option key={City.name} value={City.name}>
+                        {City.name}
                       </option>
                     ))}
                   </select>
@@ -373,8 +410,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                   <label className="block mb-2 font-medium">Country</label>
 
                   <input
-                    name="country"
-                    value={formData.country}
+                    name="Country"
+                    value={formData.Country}
                     onChange={handleChange}
                     className="w-full border rounded-xl px-4 py-3"
                   />
@@ -384,8 +421,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
                   <label className="block mb-2 font-medium">Pincode</label>
 
                   <input
-                    name="pincode"
-                    value={formData.pincode}
+                    name="Pincode"
+                    value={formData.Pincode}
                     onChange={handleChange}
                     className="w-full border rounded-xl px-4 py-3"
                   />
@@ -393,10 +430,10 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
               </div>
             </div>
 
-            {/* Capacity */}
+            {/* CapaCity */}
             <div className="mt-10">
               <h3 className="text-lg font-semibold text-slate-700 mb-6">
-                Hospital Capacity
+                Hospital CapaCity
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -405,8 +442,8 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
                   <input
                     type="number"
-                    name="totalBeds"
-                    value={formData.totalBeds}
+                    name="TotalBeds"
+                    value={formData.TotalBeds}
                     onChange={handleChange}
                     className="w-full border rounded-xl px-4 py-3"
                   />
@@ -462,14 +499,14 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                  ["Emergency", "emergencyAvailable"],
-                  ["ICU", "icuAvailable"],
-                  ["Ambulance", "ambulanceAvailable"],
-                  ["Blood Bank", "bloodBankAvailable"],
-                  ["Pharmacy", "pharmacyAvailable"],
-                  ["Laboratory", "laboratoryAvailable"],
-                  ["Radiology", "radiologyAvailable"],
-                  ["Parking", "parkingAvailable"],
+                  ["Emergency", "EmergencyAvailable"],
+                  ["ICU", "ICUAvailable"],
+                  ["Ambulance", "AmbulanceAvailable"],
+                  ["Blood Bank", "BloodBankAvailable"],
+                  ["Pharmacy", "PharmacyAvailable"],
+                  ["Laboratory", "LaboratoryAvailable"],
+                  ["Radiology", "RadiologyAvailable"],
+                  ["Parking", "ParkingAvailable"],
                 ].map(([label, field]) => (
                   <div
                     key={field}
@@ -531,10 +568,10 @@ export default function HospitalForm({ open, onClose, hospital, onSave }) {
 
               <textarea
                 rows={5}
-                name="description"
-                value={formData.description}
+                name="Description"
+                value={formData.Description}
                 onChange={handleChange}
-                placeholder="Write hospital description..."
+                placeholder="Write hospital Description..."
                 className="w-full border rounded-xl p-4 resize-none"
               />
             </div>

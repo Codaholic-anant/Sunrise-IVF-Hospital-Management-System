@@ -6,6 +6,7 @@ namespace HospitalManagement.Core.Interfaces
 {
     public interface IHospitalRepository
     {
+        Task<List<Hospital>> GetAllAsync();
         Task<Hospital> RegisterHospitalAsync(HospitalRegisterDTO model);
         Task<Hospital?> GetByIdAsync(long id);
     }

@@ -12,7 +12,7 @@ namespace HospitalManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class HospitalController : ControllerBase
     {
         private readonly IHospitalRepository _hospitalRepo;
@@ -23,7 +23,7 @@ namespace HospitalManagement.API.Controllers
         }
 
         // POST: api/hospital
-        [HttpPost]
+     [HttpPost]
         public async Task<IActionResult> AddHospitals([FromBody] HospitalRegisterDTO model)
         {
             if (model == null)
@@ -35,19 +35,25 @@ namespace HospitalManagement.API.Controllers
             if (string.IsNullOrWhiteSpace(model.HospitalCode) || string.IsNullOrWhiteSpace(model.HospitalName) || string.IsNullOrWhiteSpace(model.RegistrationNumber))
                 return BadRequest(new { success = false, message = "Hospital code, name, and registration number are required." });
 
-            var currentYear = DateTime.UtcNow.Year;
-            if (model.EstablishedYear.HasValue)
-            {
-                var establishedYear = model.EstablishedYear.Value;
-                if (establishedYear < 1800 || establishedYear > currentYear + 1)
-                    return BadRequest(new { success = false, message = "Established year is out of range." });
-            }
+            // var currentYear = DateTime.UtcNow.Year;
+            // if (model.EstablishedYear.HasValue)
+            // {
+            //     var establishedYear = model.EstablishedYear.Value;
+            //     if (establishedYear < 1800 || establishedYear > currentYear + 1)
+            //         return BadRequest(new { success = false, message = "Established year is out of range." });
+            // }
 
             var created = await _hospitalRepo.RegisterHospitalAsync(model);
 
             return CreatedAtAction(nameof(GetById), new { id = created.HospitalId }, created);
         }
 
+        [HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var hospitals = await _hospitalRepo.GetAllAsync();
+    return Ok(hospitals);
+}
         // GET: api/hospital/{id}
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id)
